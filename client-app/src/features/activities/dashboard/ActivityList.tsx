@@ -1,25 +1,17 @@
+import { observer } from "mobx-react-lite";
 import React, { useState } from "react";
-import { SyntheticEvent } from "react";
 import { Button, Item, Label, Segment } from "semantic-ui-react";
-import { Activity } from "../../../app/models/Activity";
+import { useStore } from "../../../app/stores/store";
 
-interface Props {
-  activities: Activity[];
-  selectActivity: (id: string) => void;
-  deleteActivity: (id: string) => void;
-  submitting: boolean;
-}
-
-export default function ActivityList({
-  activities,
-  selectActivity,
-  deleteActivity,
-  submitting,
-}: Props) {
+export default observer(function ActivityList() {
   const [target, setTarget] = useState("");
 
+  const { activityStore } = useStore();
+
+  const { deleteActivity, activitiesByDate, loading } = activityStore;
+
   function handleActivityDelete(
-    e: SyntheticEvent<HTMLButtonElement>,
+    e: React.MouseEvent<HTMLButtonElement>,
     id: string
   ) {
     setTarget(e.currentTarget.name);
@@ -29,7 +21,7 @@ export default function ActivityList({
   return (
     <Segment>
       <Item.Group dividide="">
-        {activities.map((activity) => (
+        {activitiesByDate.map((activity) => (
           <Item key={activity.id}>
             <Item.Content>
               <Item.Header as="a">
@@ -44,14 +36,14 @@ export default function ActivityList({
                 <Item.Extra>
                   <Button
                     onClick={(e) => handleActivityDelete(e, activity.id)}
-                    loading={submitting && target === activity.id}
+                    loading={loading && target === activity.id}
                     name={activity.id}
                     floated="right"
                     content="delete"
                     color="red"
                   />
                   <Button
-                    onClick={() => selectActivity(activity.id)}
+                    onClick={() => activityStore.selectAcitivity(activity.id)}
                     floated="right"
                     content="view"
                     color="blue"
@@ -65,4 +57,4 @@ export default function ActivityList({
       </Item.Group>
     </Segment>
   );
-}
+});
